@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import axios from 'axios';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
 import useInput from '@hooks/useInput';
 
@@ -9,9 +10,9 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [passwordCheck, setPasswordCheck] = useState('');
   // 에러 정의
-  const [missmatchError, setMissmatchError] = useState(false);
-  const [signUpError, setSignUpError] = useState('');
-  const [signUpSuccess, setSignUpSuccess] = useState(false);
+  const [missmatchError, setMissmatchError] = useState(false); // 비밀번호 확인
+  const [signUpError, setSignUpError] = useState(''); // 회원가입 에러
+  const [signUpSuccess, setSignUpSuccess] = useState(false); // 회원가입 성공
 
   const onChangePassword = useCallback((e) => {
     setPassword(e.target.value);
@@ -20,14 +21,29 @@ const SignUp = () => {
   }, []);
   const onChangePasswordCheck = useCallback((e) => {
     setPasswordCheck(e.target.value);
+    // 비밀번호 확인
     setMissmatchError(e.target.value !== password);
   }, []);
+
+  /**
+   * 회원 가입 요청 보내기
+   */
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();
       console.log('check: ', email, nickname, password, passwordCheck);
       if (!missmatchError) {
-        console.log('submit');
+        setSignUpError('');
+        setSignUpSuccess(false);
+        axios
+          .post('http://localhost:3095/api/users', { email, nickname, password })
+          .then((response) => {
+            setSignUpSuccess(true);
+          })
+          .catch((error) => {
+            setSignUpError(error.response.data);
+          })
+          .finally(() => {});
       }
     },
     [email, nickname, password, passwordCheck, missmatchError],
