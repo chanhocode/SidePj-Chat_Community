@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import axios from 'axios';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
 import useInput from '@hooks/useInput';
+import { Link } from 'react-router-dom';
 
 const SignUp = () => {
   // 상태 관리
@@ -14,16 +15,22 @@ const SignUp = () => {
   const [signUpError, setSignUpError] = useState(''); // 회원가입 에러
   const [signUpSuccess, setSignUpSuccess] = useState(false); // 회원가입 성공
 
-  const onChangePassword = useCallback((e) => {
-    setPassword(e.target.value);
-    // 비밀번호 확인
-    setMissmatchError(e.target.value !== passwordCheck);
-  }, []);
-  const onChangePasswordCheck = useCallback((e) => {
-    setPasswordCheck(e.target.value);
-    // 비밀번호 확인
-    setMissmatchError(e.target.value !== password);
-  }, []);
+  const onChangePassword = useCallback(
+    (e) => {
+      setPassword(e.target.value);
+      // 비밀번호 확인
+      setMissmatchError(e.target.value !== passwordCheck);
+    },
+    [passwordCheck],
+  );
+  const onChangePasswordCheck = useCallback(
+    (e) => {
+      setPasswordCheck(e.target.value);
+      // 비밀번호 확인
+      setMissmatchError(e.target.value !== password);
+    },
+    [password],
+  );
 
   /**
    * 회원 가입 요청 보내기
@@ -92,7 +99,7 @@ const SignUp = () => {
       </Form>
       <LinkContainer>
         이미 회원이신가요?&nbsp;
-        <a href="/login">로그인 하러가기</a>
+        <Link to="/login">로그인 하러가기</Link>
       </LinkContainer>
     </div>
   );
