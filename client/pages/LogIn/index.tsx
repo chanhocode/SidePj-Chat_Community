@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
+import { Redirect } from 'react-router-dom';
 
 const LogIn = () => {
   // SWR & State
@@ -23,8 +24,8 @@ const LogIn = () => {
       setLogInError(false);
       axios
         .post('http://localhost:3095/api/users/login', { email, password }, { withCredentials: true })
-        .then(() => {
-          mutate();
+        .then((response) => {
+          mutate(response.data, false);
         })
         .catch((error) => {
           setLogInError(error.response?.data?.code === 401);
@@ -32,6 +33,15 @@ const LogIn = () => {
     },
     [email, password, mutate],
   );
+
+  if (data === undefined) {
+    return <div>로딩중...</div>;
+  }
+
+  // 로그인 성공시 채널로 이동
+  if (data) {
+    return <Redirect to="/workspace/channel" />;
+  }
 
   return (
     <div id="container">

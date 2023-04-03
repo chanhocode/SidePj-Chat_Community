@@ -2,9 +2,13 @@ import React, { useCallback, useState } from 'react';
 import axios from 'axios';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
 import useInput from '@hooks/useInput';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
 
 const SignUp = () => {
+  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
+
   // 상태 관리
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -55,6 +59,15 @@ const SignUp = () => {
     },
     [email, nickname, password, passwordCheck, missmatchError],
   );
+
+  if (data === undefined) {
+    return <div>로딩중...</div>;
+  }
+
+  if (!data) {
+    return <Redirect to="/login" />;
+  }
+
   return (
     <div id="container">
       <Header>Chat-Community</Header>
