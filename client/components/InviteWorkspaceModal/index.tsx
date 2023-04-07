@@ -18,9 +18,9 @@ interface Props {
 const InviteWorkspaceModal: FunctionComponent<Props> = ({ show, onCloseModal, setShowInviteWorkspaceModal }) => {
   const { workspace } = useParams<{ workspace: string }>();
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
-  const { data: userData } = useSWR<IUser>('http://localhost:3095/api/users', fetcher);
+  const { data: userData } = useSWR<IUser>('/api/users', fetcher);
   const { mutate: revalidateMember } = useSWR<IUser[]>(
-    userData ? `http://localhost:3095/api/workspace/${workspace}/member` : null,
+    userData ? `/api/workspace/${workspace}/member` : null,
     fetcher,
   );
 
@@ -28,7 +28,7 @@ const InviteWorkspaceModal: FunctionComponent<Props> = ({ show, onCloseModal, se
     e.preventDefault();
     if (!newMember || !newMember.trim()) return;
     axios
-      .post(`http://localhost:3095/api/workspace/${workspace}/members`, {
+      .post(`/api/workspace/${workspace}/members`, {
         email: newMember,
       })
       .then(() => {
