@@ -60,17 +60,17 @@ const SignUp = () => {
     [email, nickname, password, passwordCheck, missmatchError],
   );
 
-  if (data === undefined) {
-    return <div>로딩중...</div>;
-  }
+  // if (data === undefined) {
+  //   return <div>로딩중...</div>;
+  // }
 
   if (data) {
     return <Redirect to="/workspace/sleact/channel/일반" />;
   }
 
-  if (!data) {
-    return <Redirect to="/login" />;
-  }
+  // if (!data) {
+  //   return <Redirect to="/login" />;
+  // }
 
   return (
     <div id="container">

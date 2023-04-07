@@ -4,6 +4,7 @@ import React, { useEffect, VFC } from 'react';
 import { useParams } from 'react-router';
 import { NavLink, useLocation } from 'react-router-dom';
 import useSWR from 'swr';
+import { FriendList } from './styles';
 
 interface Props {
   member: IUser;
@@ -27,23 +28,17 @@ const EachDM: VFC<Props> = ({ member, isOnline }) => {
     }
   }, [mutate, location.pathname, workspace, member]);
 
-
   // NavLink : activeClass 를 가질 수 있다. 지금 주소와 액티브 주소가 같으면 class 적용
   return (
     <NavLink key={member.id} activeClassName="selected" to={`/workspace/${workspace}/dm/${member.id}`}>
-      <i
-        className={`c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence ${
-          isOnline ? 'c-presence--active c-icon--presence-online' : 'c-icon--presence-offline'
-        }`}
-        aria-hidden="true"
-        data-qa="presence_indicator"
-        data-qa-presence-self="false"
-        data-qa-presence-active="false"
-        data-qa-presence-dnd="false"
-      />
-      <span className={count && count > 0 ? 'bold' : undefined}>{member.nickname}</span>
-      {member.id === userData?.id && <span> (나)</span>}
-      {(count && count > 0 && <span className="count">{count}</span>) || null}
+      <FriendList>
+        <div className="active-state">
+          <div className={`${member.id === userData?.id ? 'onCircle' : isOnline ? 'onCircle' : 'offCircle'}`}></div>
+        </div>
+        <span className={count && count > 0 ? 'bold' : undefined}>{member.nickname}</span>
+        {member.id === userData?.id && <span> (나)</span>}
+        {(count && count > 0 && <span className="count">{count}</span>) || null}
+      </FriendList>
     </NavLink>
   );
 };
