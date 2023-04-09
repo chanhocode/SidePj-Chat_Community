@@ -1,10 +1,12 @@
 import fetcher from '@utils/fetcher';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { useParams } from 'react-router';
 import { CollapseButton } from './styles';
 import { IUser, IUserWithOnline } from '@typings/db';
 import EachDM from '@components/EachDM';
+import useSocket from '@hooks/useSocket';
+
 const DMList = () => {
   const { workspace } = useParams<{ workspace?: string }>();
   const { data: userData } = useSWR<IUser>('/api/users', fetcher, {
@@ -15,12 +17,27 @@ const DMList = () => {
     fetcher,
   );
 
+  const [socket] = useSocket(workspace);
   const [channelCollapse, setChannelColllapse] = useState(false); // 멤버 목록 열고 닫기
-  const [onlineList, setOnllineList] = useState<number[]>([]);
+  const [onlineList, setOnlineList] = useState<number[]>([]);
 
   const toggleChannelCollapse = useCallback(() => {
     setChannelColllapse((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    console.log('workspace 변경: ', workspace);
+    setOnlineList([]);
+  }, [workspace]);
+
+  useEffect(() => {
+    socket?.on('onlineList', (data: number[]) => {
+      setOnlineList(data);
+    });
+    return () => {
+      socket?.off('onlineList'); // 정리 _ 연결 끊기
+    };
+  }, [socket]);
 
   return (
     <>

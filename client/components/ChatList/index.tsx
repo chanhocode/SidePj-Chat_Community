@@ -1,10 +1,19 @@
-import React from 'react';
+import { IDM } from '@typings/db';
+import React, { FunctionComponent } from 'react';
 import { ChatZone, Section } from './styles';
+import Chat from '../Chat';
+interface Props {
+  chatData?: IDM[];
+}
 
-const ChatList = () => {
+const ChatList: FunctionComponent<Props> = ({ chatData }) => {
   return (
     <ChatZone>
-      <Section>section</Section>
+      <div>
+        {chatData?.map((chat) => (
+          <Chat key={chat.id} data={chat} />
+        ))}
+      </div>
     </ChatZone>
   );
 };
