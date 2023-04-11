@@ -9,6 +9,7 @@ import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
 import axios from 'axios';
+import makeSection from '@utils/makeSection';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
@@ -39,6 +40,9 @@ const DirectMessage = () => {
     [chat, id, mutateChat, setChat, workspace],
   );
 
+  // 불변성 유지
+  const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
+
   if (!userData || !myData) {
     return null;
   }
@@ -48,7 +52,7 @@ const DirectMessage = () => {
         <img src={BlankProfile} alt={userData.nickname} width="20px" />
         <span>{userData.nickname}</span>
       </Header>
-      <ChatList chatData={chatData} />
+      <ChatList chatSections={chatSections} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} placeholder="" />
     </Container>
   );
