@@ -12,6 +12,8 @@ import useInput from '@hooks/useInput';
 import axios from 'axios';
 import makeSection from '@utils/makeSection';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { Socket } from 'socket.io-client';
+import useSocket from '@hooks/useSocket';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
@@ -30,6 +32,31 @@ const DirectMessage = () => {
     (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
     fetcher,
   );
+
+  // 소켓 연결
+  const [socket] = useSocket(workspace);
+
+  const onMessage = useCallback((data: IDM) => {
+    if (data.SenderId === Number(id) && myData.id !== Number(id)) {
+      mutateChat((chatData) => {
+        // 가장 최신 배열에 가장 최신으로 데이터 넣기
+        chatData?.[0].unshift(data);
+        return chatData;
+      }, false).then(() => {
+        // 내가 150픽셀 이상 스크롤이 올라가 있는 상태이면 상대방이 채팅을 보냈을 때 스크롤 바가 내려 가지 않게 한다.
+        if (scrollbarRef.current) {
+          if (
+            scrollbarRef.current.getScrollHeight() <
+            scrollbarRef.current.getScrollHeight() + scrollbarRef.current.getScrollTop() + 150
+          ) {
+            setTimeout(() => {
+              scrollbarRef.current?.scrollToBottom();
+            }, 60);
+          }
+        }
+      });
+    }
+  }, []);
 
   /**
    * isEmpty: 데이터가 비어있는지 비어있으면 끝
@@ -74,6 +101,13 @@ const DirectMessage = () => {
 
   // 불변성 유지
   const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
+
+  useEffect(() => {
+    socket?.on('dm', onMessage);
+    return () => {
+      socket?.off('dm', onMessage);
+    };
+  }, [socket, onMessage]);
 
   // 스크롤 조절: 로딩시 스크롤바 제일 아래로 시작
   useEffect(() => {
